@@ -17,7 +17,7 @@ namespace TextAnalysis
             var bigramList = new Dictionary<string, string>();
             Dictionary<string, int> valueFrequencyList = new Dictionary<string, int>(); //Словарь частотности значений
             Dictionary<string, Dictionary<string, int>> bigramFrequencyList = 
-                new Dictionary<string, Dictionary<string, int>>();
+                new Dictionary<string, Dictionary<string, int>>(); //Словарь частотности значений по ключу
 
             foreach (List<string> sentence in text) // Обход по предложениям к тексте
             {
@@ -29,21 +29,24 @@ namespace TextAnalysis
                         if (!bigramList.ContainsKey(sentence[i]))
                         {
                             bigramList.Add(sentence[i], sentence[i + 1]);
-                            if (!valueFrequencyList.ContainsKey(sentence[i + 1]))
+                            if (!bigramFrequencyList.ContainsKey(sentence[i + 1]))
                             {
-                                valueFrequencyList.Add(sentence[i + 1], 1);
+                                bigramFrequencyList.Add(sentence[i], new Dictionary<string, int>());
+                                bigramFrequencyList[sentence[i]][sentence[i + 1]] = 1;
                             }
                         }   
                         //Если ключ есть, то проверить значение добавить в словарь частотности
                         else if (bigramList.ContainsKey(sentence[i]))
                         {
-                            bigramList.TryGetValue(sentence[i], out string value); //Получаем значение из словаря по ключу
-                            if (value == sentence[i + 1]) // Если значение было, то увеличивает частоту на 1
-                                valueFrequencyList[sentence[i + 1]] += 1;
-                            else if (valueFrequencyList.ContainsKey(sentence[i + 1]))
-                                valueFrequencyList[sentence[i + 1]] += 1;
+                            // Если значение было, то увеличивает частоту на 1
+                            if (bigramFrequencyList[sentence[i]].ContainsKey(sentence[i + 1])) 
+                                bigramFrequencyList[sentence[i]][sentence[i + 1]] += 1;
+                            //Если значения не было, то добавляем в словарь частотности
                             else
-                                valueFrequencyList.Add(sentence[i + 1], 1); //Если нет, то добавляем новое значение
+                            {
+                                bigramFrequencyList[sentence[i]] = new Dictionary<string, int>();
+                                bigramFrequencyList[sentence[i]][sentence[i + 1]] = 1;
+                            }
                         }
                     }
                 }
